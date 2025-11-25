@@ -1,0 +1,33 @@
+name: Vérifier la build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Utiliser Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Installer les dépendances
+      run: npm install
+    
+    - name: Générer la build
+      run: npm run build
+    
+    - name: Vérifier que dist/ est créé
+      run: test -d dist && echo "✓ Build réussie" || (echo "✗ Build échouée" && exit 1)
